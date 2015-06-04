@@ -3,10 +3,17 @@
 <h1>Add a new puzzle!</h1>
 
 <%= form_for @puzzle, html: {multipart: true} do |f| %>
-
+	<div>
+		<%= f.label :title %>
+		<%= f.text_field :title %>
+	</div>
 	<div>
 		<%= f.label :image %>
 		<%= f.file_field :image %>
+	</div>
+	<div>
+		<%= f.label :message %>
+		<%= f.text_area :message %>
 	</div>
 
 	<%= f.submit "Add new puzzle!" %>

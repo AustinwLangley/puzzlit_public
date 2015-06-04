@@ -1,2 +1,280 @@
 <h1>Puzzles#show</h1>
-<p>Find me in app/views/puzzles/show.html.erb</p>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Puzzlit</title>
+	<script>
+		const PUZZLE_DIFFICULTY = 3 ; //4 = 4x4 = 16 total pieces
+		const PUZZLE_HOVER_TINT = '#009900'; //green color
+
+		// Canvas references///////////////////////////////////
+		var _canvas; // references the canvas so that we don't have to write out the entire query
+		var _stage; // references the canvas's drawing context
+
+		// Loaded image reference//////////////////////////////
+		var _img 
+
+		// Puzzle piece references, stores dimensions of pieces and the entire puzzle once
+		var _pieces // an array of all of the pieces
+		var _pieceHeight
+		var _pieceWidth
+		var _puzzleWidth
+		var _puzzleHeight
+
+		// Puzzle interaction references///////////////////////
+		var _currentPiece // current piece that is being drag
+		var _currentDropPiece // location that the currentPiece would fall into if mouse is released.
+		var _mouse // holds the mouse current x and y positioning
+		// this gets updated when the puzzle is clicked to determine which piece is touched and 
+		// when a piece is being dragged to determine what piece it's hovering over.
+
+		//Load the image
+		function init(){
+			_img = new Image(); //creates an image object
+			_img.addEventListener('load', onImage, false); //calls the onImage func when picture loads with bubbling turned on, _img is passed in as a argument of the function.   
+			_img.src = "<%= @puzzle.image_url(:full) %>"  //triggers the load eventListener
+		} 															
+
+		//Calculate puzzle piece and puzzle size.  Also do some trimming up.  
+		function onImage(image){
+			_pieceWidth = Math.floor(_img.width / PUZZLE_DIFFICULTY); //divides width and rounds down 
+			_pieceHeight = Math.floor(_img.height / PUZZLE_DIFFICULTY); //Same as above but height
+			_puzzleWidth = _pieceWidth * PUZZLE_DIFFICULTY; //takes the pieces and makes a puzzle
+			_puzzleHeight = _pieceHeight * PUZZLE_DIFFICULTY; //takes the pieces and makes a puzzle
+			setCanvas();
+			initPuzzle();
+		}
+
+		// set the canvas element up with 2d context, change it's size to match the puzzle dimensions
+		function setCanvas(){
+			_canvas = document.getElementById('canvas'); //target canvas element and set to variable
+		 	_stage = _canvas.getContext('2d'); //sets up methods for the targeted canvas and sets 2d
+			_canvas.width = _puzzleWidth; //set the canvas width to the puzzle width
+			_canvas.height = _puzzleHeight; //set the canvas height to the puzzle height
+			_canvas.style.border = "1px solid black"; //set border to solid black around puzzle
+		}
+
+		//initializes puzzle pieces, mouse and interactive variables. Also calls title and build funcs.
+		function initPuzzle(){
+			_pieces = []; //set pieces to an empty array
+			_mouse = {x:0, y:0}; //set up mous`1e location object
+			_currentPiece = null; //reset value to null if playing again
+			_currentDropPiece = null; //reset value to null if playing again
+			//_stage.drawImage(_img, 0, 0, _puzzleWidth, _puzzleHeight, 0, 0, _puzzleWidth, _puzzleHeight);
+			createTitle("Click me to Start Your Puzzle!");  //function to start puzzle
+			buildPieces(); //
+		}
+
+		//creates the title and background color
+		function createTitle(msg){
+			_stage.fillStyle = "lightblue"; // background color
+		    _stage.fillRect(0, 0, _puzzleWidth, _puzzleHeight); //set the fill of background
+		    _stage.fillStyle = "#000000"; //fill style for text
+		    _stage.textAlign = "center"; 
+		    _stage.textBaseline = "middle";
+		    _stage.font = "40px Times New Roman";
+		    _stage.fillText(msg,_puzzleWidth / 2,_puzzleHeight/ 2); //makes sure text is in the middle
+		}
+
+		// build the pieces with correct dimensions 
+		function buildPieces(){
+			var i; //loop variable
+			var piece; // 
+			var xPos = 0;
+			var yPos = 0;
+			for(i = 0; i < PUZZLE_DIFFICULTY * PUZZLE_DIFFICULTY; i++){ //loop to create pieces
+				piece = {}; //create an empty piece object
+				piece.sx = xPos; // set the length of piece to value of xPos
+				piece.sy = yPos; // set the height of piece to value of yPos
+				_pieces.push(piece); //push piece into _pieces array
+				xPos += _pieceWidth; //update xPos by one piece width
+				if(xPos >= _puzzleWidth){ //loop to check if the end of width is reached
+					xPos = 0;				//if its reached, reset xPos to 0 and increment height
+					yPos += _pieceHeight;
+				}
+			}
+			console.log(_pieces);
+			document.onmousedown = shufflePuzzle;  //on mousedown shuffle the puzzle, no parens because we want to wait for a click.
+		}
+		// shuffles all of the pieces and clears the canvas
+		function shufflePuzzle(){
+			_pieces = shuffleArray(_pieces); //shuffles pieces of array
+			_stage.clearRect(0, 0, _puzzleWidth, _puzzleHeight); //clear out canvas
+			var i;
+			var piece;
+			var xPos = 0;
+			var yPos = 0;
+			for(i = 0; i < _pieces.length; i++){
+				piece = _pieces[i]; //for every piece 
+				piece.xPos = xPos;
+        	    piece.yPos = yPos;
+        	    _stage.drawImage(_img, piece.sx, piece.sy, _pieceWidth, _pieceHeight, xPos, yPos, _pieceWidth, _pieceHeight);
+        	    _stage.strokeRect(xPos, yPos, _pieceWidth,_pieceHeight); // draw a line around each piece to seperate it
+        	    xPos += _pieceWidth; //update xPos by one piece width
+        	    if(xPos >= _puzzleWidth){ //loop to check if the end of width is reached
+					xPos = 0;				//if its reached, reset xPos to 0 and increment height
+					yPos += _pieceHeight;
+				}
+			}
+			console.log(_pieces);
+			document.onmousedown = onPuzzleClick; //this fires the puzzle click function
+		}
+
+		// shuffles the array of puzzle pieces
+		function shuffleArray(array){
+		    for(var j, x, i = array.length; i; j = parseInt(Math.random() * i), x = array[--i], array[i] = array[j], array[j] = x);
+		    return array;
+		}
+
+		// targets selected puzzle piece and redraws it, making it transparent.
+		function onPuzzleClick(click){
+			if(click.layerX || click.layerX == 0){ // if there is a click or the click x position is equal to 0
+				_mouse.x = click.layerX - _canvas.offsetLeft; //subtract offset to get the position relative to the 0,0 of canvas   
+				_mouse.y = click.layerY - _canvas.offsetTop;  //subtract offset to get the position relative to the 0,0 of canvas  
+			}
+			else if(click.offsetX || click.offsetX == 0){ // if there is a click or the click x position is equal to 0
+				_mouse.x = click.offsetX - _canvas.offsetLeft;  //subtract offset to get the position relative to the 0,0 of canvas  
+				_mouse.y = click.offsetY - _canvas.offsetTop;  //subtract offset to get the position relative to the 0,0 of canvas  
+			}
+			
+			_currentPiece = checkPieceClicked();  //set _currentPiece to the returned value of checkPiece Clicked function.
+			console.log(_currentPiece);
+			if (_currentPiece != null){
+				_stage.clearRect(_currentPiece.xPos,_currentPiece.yPos,_pieceWidth,_pieceHeight); //clear only the current piece
+        		_stage.save(); //save the puzzle so that nothing is overwritten
+        		_stage.globalAlpha = .9; //set the transparency of current piece to clear
+        		_stage.drawImage(_img, _currentPiece.sx, _currentPiece.sy, _pieceWidth, _pieceHeight, _mouse.x - (_pieceWidth / 2), _mouse.y - (_pieceHeight / 2), _pieceWidth, _pieceHeight); //redraw current_piece selected under mouse pointer
+        		_stage.restore(); //restore values back to default, such as transparency
+        		document.onmousemove = updatePuzzle; //call the update puzzle function
+        		document.onmouseup = pieceDropped; //call the piece dropped function
+			}
+
+			//console.log(_currentPiece.sx, _currentPiece.sy, (_mouse.x - (_pieceWidth / 2)), _mouse.y - (_pieceHeight / 2))
+			// console.log tests
+			// console.log(click.layerX);
+			// console.log(click.layerY);
+			// console.log("left", _canvas.offsetLeft);
+			// console.log("top", _canvas.offsetTop);
+			// console.log("offsetX", click.offsetX);
+			// console.log("offsetY", click.offsetY);
+		}
+
+		// iterates over _pieces array to check to see if a piece has been clicked.
+		function checkPieceClicked(){
+		    var i;
+		    var piece;
+		    //console.log(_pieces);
+		    for(i = 0; i < _pieces.length; i++){
+		        piece = _pieces[i];
+		        // console.log("mousex", _mouse.x);
+		        // console.log("xPos", piece.xPos);
+		        // console.log("x+width", (piece.xPos + _pieceWidth));
+		        // console.log("mousey", _mouse.y);
+		        // console.log("yPos", piece.yPos);
+		        // console.log("y+height", (piece.yPos + _pieceHeight));
+		        if(_mouse.x < piece.xPos || _mouse.x > (piece.xPos + _pieceWidth) || _mouse.y < piece.yPos || _mouse.y > (piece.yPos + _pieceHeight)){ //compares mouse clicks with 
+		            //PIECE NOT HIT   								//with piece positions to find
+		        }													//the piece that was selected.
+		        else{
+		            return piece;
+		        }
+		    }
+		    return null; //return null if no piece was selectd  
+		}
+
+		// This function allows for dragging of the piece selected and heightlights the drop zone.
+		function updatePuzzle(click){
+		    _currentDropPiece = null;  //set to null, just in case drop in original slot
+		    if(click.layerX || click.layerX == 0){  //set mouse click to 0
+		        _mouse.x = click.layerX - _canvas.offsetLeft;
+		        _mouse.y = click.layerY - _canvas.offsetTop;
+		    }
+		    else if(click.offsetX || click.offsetX == 0){
+		        _mouse.x = click.offsetX - _canvas.offsetLeft;
+		        _mouse.y = click.offsetY - _canvas.offsetTop;
+		    }
+		    _stage.clearRect(0,0,_puzzleWidth,_puzzleHeight); //redraw the puzzle without currentpiece
+		    var i;
+		    var piece;
+	        for(i = 0;i < _pieces.length;i++){ //loop through pieces as usual
+	            piece = _pieces[i];
+	            if(piece == _currentPiece){ //this keeps the dragged piece slot empty, by breaking one iteration of the loop.
+	               continue;
+	            }
+	            _stage.drawImage(_img, piece.sx, piece.sy, _pieceWidth, _pieceHeight, piece.xPos, piece.yPos, _pieceWidth, _pieceHeight); //draw pieces again
+	            _stage.strokeRect(piece.xPos, piece.yPos, _pieceWidth,_pieceHeight); //draw border
+	            if(_currentDropPiece == null){  //if we do not have a current drop piece, find it.
+	                if(_mouse.x < piece.xPos || _mouse.x > (piece.xPos + _pieceWidth) || _mouse.y < piece.yPos || _mouse.y > (piece.yPos + _pieceHeight)){
+	                   //NOT OVER
+	                }
+	                else{ //feedback for drop location
+	                   _currentDropPiece = piece;
+	                   _stage.save(); 
+	                   _stage.globalAlpha = .4; 
+	                   _stage.fillStyle = PUZZLE_HOVER_TINT; 
+	                   _stage.fillRect(_currentDropPiece.xPos,_currentDropPiece.yPos,_pieceWidth, _pieceHeight); 
+	                   _stage.restore(); //restore default values for alpha
+	                }
+	            }
+	        }
+	        // need to redraw the dragged piece and mouse position has been updated.
+	        _stage.save();
+	        _stage.globalAlpha = .6;
+	        _stage.drawImage(_img, _currentPiece.sx, _currentPiece.sy, _pieceWidth, _pieceHeight, _mouse.x - (_pieceWidth / 2), _mouse.y - (_pieceHeight / 2), _pieceWidth, _pieceHeight); //redraw piece
+	        _stage.restore(); //restore default values
+	        _stage.strokeRect( _mouse.x - (_pieceWidth / 2), _mouse.y - (_pieceHeight / 2), _pieceWidth,_pieceHeight); //redraw border
+		}
+
+		function pieceDropped(input){
+			document.onmousemove = null;
+			document.onmouseup = null;
+			if (_currentDropPiece != null){ //if not null, means we dropped the piece back into original slot.
+				////////SWAP Piece Coordinates////////////////////////////////////////
+				var tmp = {xPos:_currentPiece.xPos, yPos:_currentPiece.yPos}; // store positions
+				_currentPiece.xPos = _currentDropPiece.xPos; //set piece selected to drop location
+				_currentPiece.yPos = _currentDropPiece.yPos; //set piece selected to drop location
+				_currentDropPiece.xPos = tmp.xPos; //set the piece in the way to the other piece spot
+				_currentDropPiece.yPos = tmp.yPos; //set the piece in the way to the other piece spot
+				////////////////////////////////////////////////////////////////
+			}
+			resetPuzzleAndCheckWin(); //redraw puzzle and check for win
+		}
+
+		// Reseting the puzzle for next move and checking for a win
+		function resetPuzzleAndCheckWin(){
+		    _stage.clearRect(0,0,_puzzleWidth,_puzzleHeight);//clear the puzzle
+		    var gameWin = true;  //set game win to true
+		    var i;
+		    var piece;
+		    for(i = 0;i < _pieces.length;i++){ 
+		        piece = _pieces[i];				
+		        _stage.drawImage(_img, piece.sx, piece.sy, _pieceWidth, _pieceHeight, piece.xPos, piece.yPos, _pieceWidth, _pieceHeight);
+		        _stage.strokeRect(piece.xPos, piece.yPos, _pieceWidth,_pieceHeight);
+		        if(piece.xPos != piece.sx || piece.yPos != piece.sy){ // go through and check to see 
+		            gameWin = false;                                  // if all pieces are in corret
+		        }													  // spots. If not set gameWin to 
+		    }														  // false.
+		    if(gameWin){  //if gamewin is true then 
+		        setTimeout(gameOver, 500); //make the transition smoother.  .5 second delay 
+		    }
+		}
+		
+		// If game is over, just redraw the complete image on the canvas.  
+		function gameOver(){
+		    document.onmousedown = null;
+		    document.onmousemove = null;
+		    document.onmouseup = null;
+		    _stage.drawImage(_img, 0, 0, _puzzleWidth, _puzzleHeight, 0, 0, _puzzleWidth, _puzzleHeight);
+		}
+
+	</script>
+		
+</head>
+<!-- onload listener that executes javascript when the body element loads, in this case the init function-->
+Title: <%= @puzzle.title %><br>
+<body onload = "init();"> 
+	<canvas id="canvas"> </canvas>
+</body> <br>
+Message: <%= @puzzle.message %>
+
+</html>
