@@ -1,2 +1,14 @@
 <h1>Puzzles#new</h1>
-<p>Find me in app/views/puzzles/new.html.erb</p>
+
+<h1>Add a new puzzle!</h1>
+
+<%= form_for @puzzle, html: {multipart: true} do |f| %>
+
+	<div>
+		<%= f.label :image %>
+		<%= f.file_field :image %>
+	</div>
+
+	<%= f.submit "Add new puzzle!" %>
+
+<% end %>
