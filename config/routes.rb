@@ -1,4 +1,18 @@
 Rails.application.routes.draw do
+  get 'puzzles/index'
+
+  get 'puzzles/show'
+
+  get 'puzzles/new'
+
+  get 'puzzles/create'
+
+  get 'puzzles/edit'
+
+  get 'puzzles/update'
+
+  get 'puzzles/destroy'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
