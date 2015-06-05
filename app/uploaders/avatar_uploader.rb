@@ -39,7 +39,7 @@ class AvatarUploader < CarrierWave::Uploader::Base
    end
 
    version :full do 
-    process :resize_to_fit => [500, 500]
+    process :resize_to_fit => [700, 700]
    end
   # version :thumb do
   #   process :resize_to_fit => [50, 50]

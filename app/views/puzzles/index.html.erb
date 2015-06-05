@@ -1,2 +1,13 @@
 <h1>Puzzles#index</h1>
-<p>Find me in app/views/puzzles/index.html.erb</p>
+
+<h1>All Puzzles</h1>
+
+<ul>
+	<% @puzzles.each do |p| %>
+		<li >
+		<%= image_tag p.image_url(:thumb) %>
+		<%= p.title %>
+		<%= link_to "More info", puzzle_path(p)%>
+		</li>
+	<% end %>
+</ul>

@@ -1,8 +1,10 @@
 <h1>Puzzles#show</h1>
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Puzzlit</title>
+	Title: <%= @puzzle.title %><br>
+	<div onload = "init();">
+		<canvas id="canvas"></canvas>
+	</div>
+	Message: <%= @puzzle.message %>
+
 	<script>
 		const PUZZLE_DIFFICULTY = 3 ; //4 = 4x4 = 16 total pieces
 		const PUZZLE_HOVER_TINT = '#009900'; //green color
@@ -268,13 +270,3 @@
 		}
 
 	</script>
-		
-</head>
-<!-- onload listener that executes javascript when the body element loads, in this case the init function-->
-Title: <%= @puzzle.title %><br>
-<body onload = "init();"> 
-	<canvas id="canvas"> </canvas>
-</body> <br>
-Message: <%= @puzzle.message %>
-
-</html>
