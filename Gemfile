@@ -20,6 +20,7 @@ gem 'bootstrap-sass', '~> 3.2.0'
         gem 'fog'         # required for Amazon S3
         gem 'rmagick'     # for post-upload image processing
 
+gem 'bcrypt', '~> 3.1.7'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks

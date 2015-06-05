@@ -1,8 +1,8 @@
 <h1>Puzzles#show</h1>
 	Title: <%= @puzzle.title %><br>
-	<div onload = "init();">
+	
 		<canvas id="canvas"></canvas>
-	</div>
+	
 	Message: <%= @puzzle.message %>
 
 	<script>
@@ -36,7 +36,7 @@
 			_img.addEventListener('load', onImage, false); //calls the onImage func when picture loads with bubbling turned on, _img is passed in as a argument of the function.   
 			_img.src = "<%= @puzzle.image_url(:full) %>"  //triggers the load eventListener
 		} 															
-
+		init(); //starts the puzzle
 		//Calculate puzzle piece and puzzle size.  Also do some trimming up.  
 		function onImage(image){
 			_pieceWidth = Math.floor(_img.width / PUZZLE_DIFFICULTY); //divides width and rounds down 
@@ -131,12 +131,12 @@
 		// targets selected puzzle piece and redraws it, making it transparent.
 		function onPuzzleClick(click){
 			if(click.layerX || click.layerX == 0){ // if there is a click or the click x position is equal to 0
-				_mouse.x = click.layerX - _canvas.offsetLeft; //subtract offset to get the position relative to the 0,0 of canvas   
-				_mouse.y = click.layerY - _canvas.offsetTop;  //subtract offset to get the position relative to the 0,0 of canvas  
+				_mouse.x = click.layerX; //subtract offset to get the position relative to the 0,0 of canvas   
+				_mouse.y = click.layerY; //subtract offset to get the position relative to the 0,0 of canvas  
 			}
 			else if(click.offsetX || click.offsetX == 0){ // if there is a click or the click x position is equal to 0
-				_mouse.x = click.offsetX - _canvas.offsetLeft;  //subtract offset to get the position relative to the 0,0 of canvas  
-				_mouse.y = click.offsetY - _canvas.offsetTop;  //subtract offset to get the position relative to the 0,0 of canvas  
+				_mouse.x = click.offsetX; //subtract offset to get the position relative to the 0,0 of canvas  
+				_mouse.y = click.offsetY; //subtract offset to get the position relative to the 0,0 of canvas  
 			}
 			
 			_currentPiece = checkPieceClicked();  //set _currentPiece to the returned value of checkPiece Clicked function.
@@ -188,12 +188,12 @@
 		function updatePuzzle(click){
 		    _currentDropPiece = null;  //set to null, just in case drop in original slot
 		    if(click.layerX || click.layerX == 0){  //set mouse click to 0
-		        _mouse.x = click.layerX - _canvas.offsetLeft;
-		        _mouse.y = click.layerY - _canvas.offsetTop;
+		        _mouse.x = click.layerX;
+		        _mouse.y = click.layerY;
 		    }
 		    else if(click.offsetX || click.offsetX == 0){
-		        _mouse.x = click.offsetX - _canvas.offsetLeft;
-		        _mouse.y = click.offsetY - _canvas.offsetTop;
+		        _mouse.x = click.offsetX;
+		        _mouse.y = click.offsetY;
 		    }
 		    _stage.clearRect(0,0,_puzzleWidth,_puzzleHeight); //redraw the puzzle without currentpiece
 		    var i;
