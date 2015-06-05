@@ -1,14 +1,17 @@
 class PuzzlesController < ApplicationController
   def index
+  @user = current_user
   @puzzles = Puzzle.all       
   end  
   
   def show
     @puzzle = Puzzle.find(params[:id])
+    @user = current_user
   end
 
   def new  # part 1 of adding new bean
     @puzzle = Puzzle.new 
+    @user = current_user
   end 
 
   def create # part 2 of adding new bean
@@ -23,6 +26,7 @@ class PuzzlesController < ApplicationController
 
   def edit 
     @puzzle = Puzzle.find(params[:id])
+    @user = current_user
   end
 
   def update
