@@ -1,18 +1,41 @@
-<h1>Sign Up</h1>
-<%= form_for @user do |f| %>
-  <div>
+<!-- Show NavBar -->
+<%= render 'shared/login_navbar' %> 
+
+<style type="text/css">
+  body{
+    background-image: url("Puzzlit_logo.jpg");
+  }
+
+  h2{
+    text-align:center
+  }
+</style>
+
+<div class="container">
+  <div class="col-xs-8 col-xs-offset-2 col-sm-4 col-sm-offset-4">
+
+<h2 class="well">Sign up for Puzzlit!</h2>
+<%= form_for @user, html: {class: "well"} do |f| %>
+  <div class="form-group">
     <%= f.label :name %>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, class: "form-control" %>
   </div>
-  <div>
+  <div class="form-group">
     <%= f.label :email %>
-    <%= f.text_field :email %>
+    <%= f.text_field :email, class: "form-control" %>
   </div>
-  <div>
+  <div class="form-group">
     <%= f.label :password %>
-    <%= f.password_field :password %>
+    <%= f.password_field :password, class: "form-control" %>
   </div>
-  <div>
-    <%= f.submit %>
+  <div class="form-group">
+    <%= f.submit "Sign up", class: "btn btn-success btn-block"%>
   </div>
 <% end %>
+<br>
+    <div>
+      <!-- already have account button -->
+      <%= link_to 'Have an Account already?  Log in', login_path, class: "btn btn-primary btn-block"  %>
+    </div>
+  </div>
+</div>

@@ -6,13 +6,13 @@
 	    <div class="row">
 	<ul>
 	<% @puzzles.each do |p| %>
-		<div class="col-md-4">
+	
 			<li >
 			<%= image_tag p.image_url(:thumb) %>
 			<%= p.title %>
 			<%= link_to "Click to solve", puzzle_path(p)%>
 			</li>
-		</div>
+	
 		<br>
 	<% end %>
 </ul>
