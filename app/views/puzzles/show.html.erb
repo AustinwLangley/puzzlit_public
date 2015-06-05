@@ -1,8 +1,7 @@
 <% if logged_in? %>
-  Logged in as: <%= current_user.name %> <%= link_to 'Log Out', logout_path, method: :delete %>
+  <%= render 'shared/navbar' %>
 
-<h1>Puzzles#show</h1>
-	Title: <%= @puzzle.title %><br>
+	<h1>Title: <%= @puzzle.title %></h1><br>
 	<%= current_user.name %><br>
 	
 		<canvas id="canvas"></canvas>

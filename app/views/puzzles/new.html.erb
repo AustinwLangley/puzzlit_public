@@ -1,21 +1,44 @@
-<h1>Puzzles#new</h1>
+<style type="text/css">
+  body{
+    background-image: url('Puzzlit_logo.jpg');
+  }
+</style>
 
-<h1>Add a new puzzle!</h1>
+<% if logged_in? %>
 
-<%= form_for @puzzle, html: {multipart: true} do |f| %>
-	<div>
-		<%= f.label :title %>
-		<%= f.text_field :title %>
-	</div>
-	<div>
-		<%= f.label :image %>
-		<%= f.file_field :image %>
-	</div>
-	<div>
-		<%= f.label :message %>
-		<%= f.text_area :message %>
-	</div>
+ <!-- Show NavBar --> 
+  <%= render 'shared/navbar' %> 
 
-	<%= f.submit "Add new puzzle!" %>
+  <div class="container">
+    <!-- Sets bootstrap layout for this div to row -->
+    <div class="row">
+      <!-- column set to 4 sm col wide -->
+      <div class="col-xs-8 col-xs-offset-2 col-sm-4 col-sm-offset-4">
+        <section>
+			<h2>Add a new puzzle!</h2>
 
+			<%= form_for @puzzle, html: {multipart: true} do |f| %>
+				<div class="form-group">
+					<%= f.label :title %>
+					<%= f.text_field :title, class: "form-control"  %>
+				</div>
+				<div class="form-group">
+					<%= f.label :image %>
+					<%= f.file_field :image, class: "form-control" %>
+				</div>
+				<div class="form-group">
+					<%= f.label :message %>
+					<%= f.text_area :message, class: "form-control"  %>
+				</div>
+
+				<%= f.submit "Add new puzzle!", class: "btn btn-success btn-block"%>
+			<% end %>
+		</section>
+        <!-- If a user is not logged in, show this instead of above   -->
+        <% else %>
+          <h1>You are not logged in.  Please log in to access this page.</h1>
+          <%= link_to 'Log In', login_path %>
+      </div>
+    </div>
+  </div>
 <% end %>
